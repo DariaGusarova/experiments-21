@@ -1,5 +1,6 @@
 import numpy as np
 from copy import deepcopy
+from tqdm import tqdm_notebook
 
 
 def to_one_hot(batch, mask, lang):
@@ -68,3 +69,34 @@ def shuffle(en_sent, de_sent, en_lens, de_lens):
     en_sent = en_sent[order]
     de_sent = de_sent[order]
     return en_sent, de_sent, en_lens, de_lens
+
+
+def separate_dataset(path, subpath, batch_size, load_epoches):
+    print('Loading dataset ...')
+    en_sent, de_sent, en_lens, de_lens = read_files(path + subpath + '.en', path + subpath + '.de')
+    print('Dataset loaded.')
+    print('Shuffling dataset ...')
+    en_sent, de_sent, en_lens, de_lens = shuffle(en_sent, de_sent, en_lens, de_lens)
+    print('Dataset shuffled.')
+    print('Shuffling batches ...')
+    batch_ix = np.arange(0, len(en_sent)-batch_size, batch_size)
+    np.random.shuffle(batch_ix)
+    print('Batches shuffled.')
+    folder = path + subpath
+    print('Writing separated dataset ...')
+    for i in tqdm_notebook(range(len(batch_ix))):
+        idx = batch_ix[i]
+        if (i % load_epoches == 0):
+            curr_file = folder + '/' + str(int(i // load_epoches))
+            if (i != 0):
+                f_en.close()
+                f_de.close()
+            f_en = open(curr_file + '.en', 'w')
+            f_de = open(curr_file + '.de', 'w')
+        for j in range(batch_size):
+            print(str(en_lens[idx+j]) + " " + " ".join(en_sent[idx+j]), file=f_en)
+            print(str(de_lens[idx+j]) + " " + " ".join(de_sent[idx+j]), file=f_de)
+    f_en.close()
+    f_de.close()
+    print('Separated dataset was written.')
+    return 

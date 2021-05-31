@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 
 common_type = torch.float32
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 class MultiHeadAttention(nn.Module):
     def __init__(self, h=8, dmodel=512, dk=64, dv=64):
@@ -11,16 +12,13 @@ class MultiHeadAttention(nn.Module):
         self.dk = dk
         self.dv = dv
         self.wo = nn.Linear(h * dv, dmodel)
-        self.wqs = []
-        self.wks = []
-        self.wvs = []
+        self.wqs = nn.ModuleList()
+        self.wks = nn.ModuleList()
+        self.wvs = nn.ModuleList()
         for i in range(h):
-            wq = nn.Linear(dmodel, dk)
-            wk = nn.Linear(dmodel, dk)
-            wv = nn.Linear(dmodel, dv)
-            self.wqs.append(wq)
-            self.wks.append(wk)
-            self.wvs.append(wv)
+            self.wqs.append(nn.Linear(dmodel, dk))
+            self.wks.append(nn.Linear(dmodel, dk))
+            self.wvs.append(nn.Linear(dmodel, dv))
         
     def forward(self, queries, keys, values, has_mask=False):
         # .shape - (batch_size, length, dmodel)
@@ -30,8 +28,7 @@ class MultiHeadAttention(nn.Module):
             for i in range(length):
                 mask[i, i+1:] = -np.inf
             mask = mask.reshape(1, length, length)
-            mask = torch.tensor(mask, dtype=common_type)
-        
+            mask = torch.tensor(mask, dtype=common_type).to(device)
         
         multihead = []
         for i in range(self.h):
@@ -149,7 +146,7 @@ class PositionalEncoding(nn.Module):
         mask[:, ::2] = np.sin(mask[:, ::2])
         mask[:, 1::2] = np.cos(mask[:, 1::2])
         mask = mask.reshape(1, length, dmodel)
-        self.mask = torch.tensor(mask, dtype=common_type)
+        self.mask = torch.tensor(mask, dtype=common_type).to(device)
         
     def forward(self, x):
         result = x + self.mask
