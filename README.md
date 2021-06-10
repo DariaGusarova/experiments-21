@@ -7,6 +7,7 @@
 2. Предобработка данных с помощью вычищения пунктуации и BPE (Byte-Pair Encoding): data_preprocessing.ipynb
 3. Вспомогательный файл с блоками Трансформера: transformer.py
 4. Вспомогательный файл с функциями для оптимизации: training.py
-5. Предобработанные данные в файлах .en/.de репозитория или тут https://drive.google.com/drive/folders/1DKEXyw7kG04HjC2VLQdjbjpr4xAh5F_A
+5. Предобработанные данные и предобученные модели для Word2Vec тут https://drive.google.com/drive/folders/1DKEXyw7kG04HjC2VLQdjbjpr4xAh5F_A
+6. Результаты для Адама тут https://drive.google.com/drive/folders/1dKJAxzkXWa-abCNWhA6rVnwe59I_iaIH?usp=sharing
 
 
