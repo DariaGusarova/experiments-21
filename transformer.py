@@ -11,14 +11,14 @@ class MultiHeadAttention(nn.Module):
         self.h = h
         self.dk = dk
         self.dv = dv
-        self.wo = nn.Linear(h * dv, dmodel)
+        self.wo = nn.Linear(h * dv, dmodel, bias=False)
         self.wqs = nn.ModuleList()
         self.wks = nn.ModuleList()
         self.wvs = nn.ModuleList()
         for i in range(h):
-            self.wqs.append(nn.Linear(dmodel, dk))
-            self.wks.append(nn.Linear(dmodel, dk))
-            self.wvs.append(nn.Linear(dmodel, dv))
+            self.wqs.append(nn.Linear(dmodel, dk, bias=False))
+            self.wks.append(nn.Linear(dmodel, dk, bias=False))
+            self.wvs.append(nn.Linear(dmodel, dv, bias=False))
         
     def forward(self, queries, keys, values, has_mask=False):
         # .shape - (batch_size, length, dmodel)

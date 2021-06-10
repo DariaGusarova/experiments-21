@@ -8,7 +8,7 @@ def to_one_hot(batch, mask, lang):
     batch_size, length = len(batch), len(batch[0])
     batch_one_hot = np.zeros((batch_size, length, len(lang)))
     batch_idx = np.zeros((batch_size, length))
-    mask_mod = mask
+    mask_mod = deepcopy(mask)
     for i in range(batch_size):
         for j in range(length):
             idx = lang[batch[i][j]]
@@ -100,3 +100,21 @@ def separate_dataset(path, subpath, batch_size, load_epoches):
     f_de.close()
     print('Separated dataset was written.')
     return 
+
+
+def extract_stats(file, bd=6., gap=10):
+    f = open(file, 'r')
+    sm_entropy, entropy, accuracy, times = [], [], [], []
+    for line in f:
+        curr = line.split()
+        sm_entropy.append(float(curr[4]))
+        entropy.append(float(curr[6][:-1]))
+        accuracy.append(float(curr[8][:-1]))
+        times.append(float(curr[10]))
+    f.close()
+    times = np.array(times) 
+    for i in range(len(times)):
+        if times[i] < bd:
+            times[i] = np.mean(times[i-gap:i])/2. + np.mean(times[i+1:i+1+gap])/2.
+    return {'sm_entropy': np.array(sm_entropy), 'entropy': np.array(entropy), 
+            'accuracy': np.array(accuracy), 'time': times}
